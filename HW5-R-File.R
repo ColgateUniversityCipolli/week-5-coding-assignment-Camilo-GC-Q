@@ -48,7 +48,9 @@ for (song in json.files){
   
   remove = str_split(filename, "-")
   artist = str_split(remove[length(remove) -2], "/")
+  artist = as.character(artist[length(artist)])
   album = remove[length(remove) - 1]
+  album = as.character(album[length(album)])
   track = str_sub(remove[length(remove)], 1, nchar(remove[length(remove)]) - 5)
   
   file.data2 = fromJSON(song)
@@ -71,88 +73,38 @@ for (song in json.files){
 
 # Step 3
 
-# 1
-# csv = read.csv("EssentiaOutput/EssentiaModelOutput.csv")
-# 
-# # 2
-# v_fir = csv$deam_valence
-# v_sec = csv$emo_valence
-# v_thir = csv$muse_valence
-# (v_sum = (v_fir + v_sec + v_thir)/3)
-# 
-# a_fir = csv$deam_arousal
-# a_sec = csv$emo_arousal
-# a_thir = csv$muse_arousal
-# (a_sum = (a_fir + a_sec + a_thir)/3)
-# 
-# csv$v_sum = v_sum
-# csv$a_sum = a_sum
-# # View(csv)
-# 
-# # 3
-# aggressive = (csv$eff_aggressive + csv$nn_aggressive) / 2
-# happy = (csv$eff_happy + csv$nn_happy) / 2
-# party = (csv$eff_party + csv$nn_party) / 2
-# relaxed = (csv$eff_relax + csv$nn_relax) / 2
-# sad = (csv$eff_sad + csv$nn_sad) / 2
-# 
-# csv$aggressive = aggressive
-# csv$happy = happy
-# csv$party = party
-# csv$relaxed = relaxed
-# csv$sad = sad
-# # View(csv)
-# 
-# # 4
-# acoustic = (csv$eff_acoustic + csv$nn_acoustic) / 2
-# electric = (csv$eff_electronic + csv$nn_electronic) / 2
-# 
-# csv$acoustic = acoustic
-# csv$electric = electric
-# # View(csv)
-# 
-# # 5
-# 
-# instrumental = (csv$eff_instrumental + csv$nn_instrumental) / 2
-# csv$instrumental = instrumental
-# # View(csv)
-# 
-# # 6
-# names(csv)[names(csv) == 'eff_timbre_bright'] = 'timbreBright'
-# # View(csv)
-# 
-# # 7
-# csv = subset(csv, select=c('artist', 'album', 'track', 'timbreBright', 'v_sum',
-#                            'a_sum', 'aggressive', 'happy', 'party', 'relaxed', 
-#                            'sad', 'acoustic', 'electric', 'instrumental'))
-# View(csv)
+csv = read.csv("EssentiaOutput/EssentiaModelOutput.csv") %>%
+  mutate(
+    v_sum = (deam_valence + emo_valence + muse_valence) / 3,
+    a_sum = (deam_arousal + emo_arousal + muse_arousal) / 3,
+    
+    aggressive = (eff_aggressive + nn_aggressive) / 2,
+    happy = (eff_happy + nn_happy) / 2,
+    party = (eff_party + nn_party) / 2,
+    relaxed = (eff_relax + nn_relax) / 2,
+    sad = (eff_sad + nn_sad) / 2,
+    
+    acoustic = (eff_acoustic + nn_acoustic) / 2,
+    electric = (eff_electronic + nn_electronic) / 2,
+    
+    instrumental = (eff_instrumental + nn_instrumental) / 2
+  ) %>%
+  rename(timbreBright = eff_timbre_bright) %>%
+  select(artist, album, track, timbreBright, v_sum, 
+         a_sum, aggressive, happy, party, relaxed, 
+         sad, acoustic, electric, instrumental)
+
 
 # Step 4
 
-# 1
 liw = read.csv("LIWCOutput/LIWCOutput.csv")
-View(liw)
+merge.data = csv %>%
+  left_join(liw, by = c("artist", "album", "track")) %>%
+  left_join(frame2, by = c("artist", "album", "track")) %>%
+  rename("funct" = "function.")
 
-# 2
-help("merge")
-dim(csv)
-dim(liw)
-dim(frame2)
+trainingdata = merge.data %>% filter(track != "Allentown")
+write_csv(trainingdata, "trainingdata.csv")
 
-merged1 = merge(csv, liw, by = c("artist", "album", "track"), all.x = TRUE)
-View(merged1)
-merged2 = merge(merged1, frame2, by = c("artist", "album", "track"), all.x = TRUE)
-View(merged2)
-
-# 3
-names(merged2)[names(merged2) == 'function.'] = 'funct'
-# colnames(merged2)
-# Step 5
-
-# 1
-trainingdata = merged2[merged2$"track" != "Allentown", ]
-write.csv(trainingdata, "trainingdata.csv")
-
-# 2
-testingdata = merged2[merged2$"track" == "Allentown", ]
-write.csv(testingdata, "testingdata.csv")
+testingdata = merge.data %>% filter(track == "Allentown")
+write_csv(trainingdata, "testingdata.csv")
