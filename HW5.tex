@@ -122,30 +122,22 @@ runs in the directory as it is set up.
   \hlkwc{danceability} \hldef{= file.data}\hlopt{$}\hldef{rhythm}\hlopt{$}\hldef{danceability,}
   \hlkwc{tuning_frequency} \hldef{= file.data}\hlopt{$}\hldef{tonal}\hlopt{$}\hldef{tuning_frequency}
 \hldef{)}
-\hlkwd{print}\hldef{(data)}
-\end{alltt}
-\begin{verbatim}
-## # A tibble: 1 x 8
-##   overall_loudness spectral_energy dissonance   pitch_salience   bpm
-##              <dbl> <named list>    <named list> <named list>   <dbl>
-## 1            -10.7 <dbl [1]>       <dbl [1]>    <dbl [1]>       141.
-## # i 3 more variables: beats_loudness <named list>, danceability <dbl>,
-## #   tuning_frequency <dbl>
-\end{verbatim}
-\begin{alltt}
+\hlkwd{View}\hldef{(data)}
+
 \hlcom{# Step 2}
 
 \hldef{json.files} \hlkwb{=} \hlkwd{list.files}\hldef{(}\hlsng{"EssentiaOutput"}\hldef{,} \hlkwc{pattern} \hldef{=} \hlsng{".json"}\hldef{,} \hlkwc{full.names} \hldef{=} \hlnum{TRUE}\hldef{)}
 \hldef{frame2} \hlkwb{=} \hlkwd{tibble}\hldef{()}
 
 \hlkwa{for} \hldef{(song} \hlkwa{in} \hldef{json.files)\{}
-  \hldef{remove.slash} \hlkwb{=} \hlkwd{str_split}\hldef{(song,} \hlsng{"/"}\hldef{)}
+  \hldef{remove.slash} \hlkwb{=} \hlkwd{str_split}\hldef{(song,} \hlsng{"/"}\hldef{,} \hlkwc{simplify} \hldef{=} \hlnum{TRUE}\hldef{)}
   \hldef{filename} \hlkwb{=} \hldef{remove.slash[}\hlkwd{length}\hldef{(remove.slash)]}
 
-  \hldef{remove} \hlkwb{=} \hlkwd{str_split}\hldef{(filename,} \hlsng{"-"}\hldef{)}
-  \hldef{artist} \hlkwb{=} \hlkwd{str_split}\hldef{(remove[}\hlkwd{length}\hldef{(remove)} \hlopt{-}\hlnum{2}\hldef{],} \hlsng{"/"}\hldef{)}
+  \hldef{remove} \hlkwb{=} \hlkwd{str_split}\hldef{(filename,} \hlsng{"-"}\hldef{,} \hlkwc{simplify} \hldef{=} \hlnum{TRUE}\hldef{)}
+
+  \hldef{artist} \hlkwb{=} \hlkwd{str_split}\hldef{(remove[}\hlkwd{length}\hldef{(remove)} \hlopt{-} \hlnum{2}\hldef{],} \hlsng{"/"}\hldef{,} \hlkwc{simplify} \hldef{=} \hlnum{TRUE}\hldef{)}
   \hldef{artist} \hlkwb{=} \hlkwd{as.character}\hldef{(artist[}\hlkwd{length}\hldef{(artist)])}
-  \hldef{album} \hlkwb{=} \hldef{remove[}\hlkwd{length}\hldef{(remove)} \hlopt{-} \hlnum{1}\hldef{]}
+  \hldef{album} \hlkwb{=} \hlkwd{as.character}\hldef{(remove[}\hlkwd{length}\hldef{(remove)} \hlopt{-} \hlnum{1}\hldef{])}
   \hldef{album} \hlkwb{=} \hlkwd{as.character}\hldef{(album[}\hlkwd{length}\hldef{(album)])}
   \hldef{track} \hlkwb{=} \hlkwd{str_sub}\hldef{(remove[}\hlkwd{length}\hldef{(remove)],} \hlnum{1}\hldef{,} \hlkwd{nchar}\hldef{(remove[}\hlkwd{length}\hldef{(remove)])} \hlopt{-} \hlnum{5}\hldef{)}
 
@@ -164,8 +156,10 @@ runs in the directory as it is set up.
     \hlkwc{tuning_frequency} \hldef{= file.data2}\hlopt{$}\hldef{tonal}\hlopt{$}\hldef{tuning_frequency}
   \hldef{)}
   \hldef{frame2} \hlkwb{=} \hlkwd{bind_rows}\hldef{(frame2, row)}
+  \hldef{dframe2} \hlkwb{=} \hlkwd{as.data.frame}\hldef{(frame2)}
 \hldef{\}}
 
+\hlkwd{View}\hldef{(dframe2)}
 
 \hlcom{# Step 3}
 
