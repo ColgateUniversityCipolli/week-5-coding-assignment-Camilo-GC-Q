@@ -6,12 +6,12 @@ library(jsonlite)
 # install.packages("tidyverse")
 library(tidyverse)
 
-help(separate)
-help(str_sub)
-help(str_split)
-help(str_remove)
-help(tibble)
-help(list.files)
+# help(separate)
+# help(str_sub)
+# help(str_split)
+# help(str_remove)
+# help(tibble)
+# help(list.files)
 # Step 1
 
 current.filename = tibble(file.name = "EssentiaOutput/The Front Bottoms-Talon Of The Hawk-Au Revoir (Adios).json")
@@ -35,7 +35,7 @@ data = tibble(
   danceability = file.data$rhythm$danceability,
   tuning_frequency = file.data$tonal$tuning_frequency
 )
-print(data)
+View(data)
 
 # Step 2
 
@@ -43,13 +43,14 @@ json.files = list.files("EssentiaOutput", pattern = ".json", full.names = TRUE)
 frame2 = tibble()
 
 for (song in json.files){
-  remove.slash = str_split(song, "/")
+  remove.slash = str_split(song, "/", simplify = TRUE)
   filename = remove.slash[length(remove.slash)]
   
-  remove = str_split(filename, "-")
-  artist = str_split(remove[length(remove) -2], "/")
+  remove = str_split(filename, "-", simplify = TRUE)
+  
+  artist = str_split(remove[length(remove) - 2], "/", simplify = TRUE)
   artist = as.character(artist[length(artist)])
-  album = remove[length(remove) - 1]
+  album = as.character(remove[length(remove) - 1])
   album = as.character(album[length(album)])
   track = str_sub(remove[length(remove)], 1, nchar(remove[length(remove)]) - 5)
   
@@ -68,8 +69,10 @@ for (song in json.files){
     tuning_frequency = file.data2$tonal$tuning_frequency
   )
   frame2 = bind_rows(frame2, row)
+  dframe2 = as.data.frame(frame2)
 }
 
+View(dframe2)
 
 # Step 3
 
